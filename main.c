@@ -5,6 +5,43 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/boot.h>
+#define SPM_PAGESIZE 256
+
+void boot_program_page(uint32_t page, uint8_t *buf) {
+	uint16_t i;
+	uint8_t sreg;
+
+	// Disable interrupts.
+	
+	sreg = SREG;
+	cli();
+
+	eeprom_busy_wait();
+
+	boot_page_erase_safe(page);
+	boot_spm_busy_wait(); //Wait until the memory is erased.
+
+	for(i=0;i<SPM_PAGESIZE;i+=2) {
+		// Set up little-endian word.
+		
+		uint16_t w = *(buf++);
+		w+= *(buf++) << 8;
+
+		boot_page_fill_safe(page+i,w);
+	}
+
+	boot_page_write_safe(page+2); // Store buffer in flash page.
+	boot_spm_busy_wait(); // Wait until the memory is written.
+
+	// Reenable RWW-section again. We need this if we want to jump back
+	// to the application after bootloading.
+	
+	boot_rww_enable_safe();
+
+	// Re-enable interrupts (if they were ever enabled).
+	
+	SREG = sreg;
+}
 
 int main(void) {
 	usart_init();
@@ -16,33 +53,9 @@ int main(void) {
 	while(i<SPM_PAGESIZE) {
 		buffer[i++] = 0xAB;
 	}
-/*
-	// Programming...
-	usart_putchar('P');
-	usart_putchar('r');
-	usart_putchar('o');
-	usart_putchar('g');
-	usart_putchar('r');
-	usart_putchar('a');
-	usart_putchar('m');
-	usart_putchar('m');
-	usart_putchar('i');
-	usart_putchar('n');
-	usart_putchar('g');
-	usart_putchar('.');
-	usart_putchar('.');
-	usart_putchar('.');
-	usart_putchar('\n');
-*/
+
 	boot_program_page(0x0000,buffer);
-/*	
-	// Done
-	usart_putchar('D');
-	usart_putchar('o');
-	usart_putchar('n');
-	usart_putchar('e');
-	usart_putchar('\n');
-*/
+
 	PORTG |= (1<<PG0);
 	while(1) {
 		PORTG ^= (1<<PG0)|(1<<PG1);

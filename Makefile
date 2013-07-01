@@ -15,7 +15,7 @@ PROJECT	= boot
 DUDEPORT = -c avrisp2 -P usb
 
 AVRDUDE	= sudo avrdude $(DUDEPORT) -p $(MCU) -y -u
-OBJS	= main.o uart.o boot.o
+OBJS	= main.o uart.o
 
 all: $(PROJECT).hex
 
