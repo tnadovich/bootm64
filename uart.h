@@ -10,3 +10,6 @@ void usart_putchar(char c);
 
 //Receive one byte over USART
 char usart_getchar(void);
+
+//Send a character array
+void usart_putstr(char* c);

@@ -54,7 +54,9 @@ int main(void) {
 		buffer[i++] = 0xAB;
 	}
 
+	usart_putstr("Writing...\n");
 	boot_program_page(0x0000,buffer);
+	usart_putstr("Done\n");
 
 	PORTG |= (1<<PG0);
 	while(1) {

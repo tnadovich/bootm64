@@ -35,3 +35,8 @@ char usart_getchar(void)
 	// Return character
 	return UDR0;
 }
+
+void usart_putstr(char* s) {
+	while(*s != 0x00)
+		usart_putchar(*(s++));
+}
