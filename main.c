@@ -49,9 +49,12 @@ int main(void) {
 	DDRG |= (1<<PG0)|(1<<PG1);
 	uint8_t buffer[SPM_PAGESIZE];
 	uint16_t i = 0;
+	char c;
 
 	while(i<SPM_PAGESIZE) {
-		buffer[i++] = 0xAB;
+		c = usart_getchar();
+		usart_putchar(c);
+		buffer[i++] = c;
 	}
 
 	usart_putstr("Writing...\n");

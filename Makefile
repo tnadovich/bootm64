@@ -25,6 +25,9 @@ all: $(PROJECT).hex
 $(PROJECT).elf: $(OBJS)
 	avr-gcc -g $(LFLAGS) -mmcu=$(MCU) -o $(PROJECT).elf $(OBJS)
 
+%.elf: %.o
+	avr-gcc -g -mmcu=$(MCU) -o blink.elf blink.o
+
 %.hex: %.elf
 	avr-objcopy -j .text -j .data -O ihex $< $@
 
@@ -37,6 +40,8 @@ fuse:
 %.lst: %.elf
 	avr-objdump -h -S $< > $@
 	avr-size --common -d $<
+
+
 
 wipe:
 	$(AVRDUDE) -e
