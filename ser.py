@@ -2,73 +2,73 @@
 
 import serial, string, sys
 
-SPM_PAGESIZE = 256
+PAGESIZE = 256
+MEMSIZE = 0xF800
+BAUD = 9600
+SERIALPORT = '/dev/ttyUSB0'
 
-def hexstr2int(s):
-	out = 0
-	for i in range(0,len(s)):
-		if (s[i] <= '9' and s[i] >= '0'):
-			out += int(s[i]) * (16 ** (len(s) - i - 1))
+# Can read in an AVR program to memory from a file, then write it out page by page over a serial connection
+class AvrSerialProgrammer:
+	pagesize = None
+	memsize = None
+	baud = None
+	serialport = None
+	ser = None
+	program = None
 
-		elif (str.capitalize(s[i]) <= 'F' and str.capitalize(s[i]) >= 'A'):
-			out += (ord(s[i]) - ord('A') + 10) * (16 ** (len(s) - i - 1))
-			
-		else:
-			return 0;
-
-	return out
-
-def get_data(n,lines):
-	return lines[n][9:-4]
-
-def get_checksum(n,lines):
-	return hexstr2int(lines[n][-4:-2]) 
-
-ser = serial.Serial('/dev/ttyUSB0')
-ser.baudrate = 9600
-f = open('blink.hex')
-lines = f.readlines()
-f.close
-
-i = 0
-j = 0
-no_more_data = False
-buf = []
-# until the buffer is filled...
-while (i < 256):
-	# keep getting lines until you hit the end
-	print 'getting line ' + str(j)
-	data = get_data(j,lines)
-	print data
-	j += 1
-	if (data == ''):
-		no_more_data = True
+	def __init__(ps,ms,b,sp):
+		pagesize = ps
+		memsize = ms
+		baud = b
+		serialport = sp
 	
-	# if you still have a line...
-	if(not no_more_data):
-		# read a hex byte into an 8 bit char in the buffer
-		k = 0
-		while(k<len(data)):
-			buf.append(chr(hexstr2int(data[k:k+1])))
-			i += 1
-			k += 2
+	# Takes a hex string, returns a integer corresponding to it. No error checking
+	def hexstr2int(s):
+		out = 0
+		for i in range(0,len(s)):
+			if (s[i] <= '9' and s[i] >= '0'):
+				out += int(s[i]) * (16 ** (len(s) - i - 1))
 
-	# if you've run out of data...
-	else:
-		# write all the remaining bits to 1s
-		while (i < 256):
-			buf.append(chr(0xFF))
-			i += 1
+			elif (str.capitalize(s[i]) <= 'F' and str.capitalize(s[i]) >= 'A'):
+				out += (ord(s[i]) - ord('A') + 10) * (16 ** (len(s) - i - 1))
 
-for ii in range(0,256):
-	sys.stdout.write(str(ord(buf[ii])) + ' ')
-"""
-ser.open()
-if (ser.isOpen()):
-	print "whee"
-	ser.write("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+			else:
+				return 0
 
-ser.close()
-if (not ser.isOpen()):
-	print "whoo"
-"""
+		return out
+
+
+	# Opens the serial port
+	def open_ser():
+		if(baud == None):
+			print "Baud rate not set. Cannot open serial port"
+			return None
+		if(serialport == None):
+			print "Serial Port not set. Cannot open serial port"
+			return None
+		ser = serial.Serial(serialport)
+		ser.baudrate = baud
+		ser.open()
+	
+	def flash(prog_file):
+		f = open(prog_file)
+		hexdata = f.readlines()
+		f.close()
+
+		if(ser.isOpen()):
+			print "Programming"
+			for i in range(0,len(hexdata)):
+				ser.write(hexdata[i])
+			print "Done"
+		else:
+			print "Serial Port is not open"
+
+	def close_ser():
+		if(ser.isOpen()):
+			ser.close()
+		else:
+			print "Serial Port is not open"
+
+asp = AvrSerialProgrammer(PAGESIZE,MEMSIZE,BAUD,SERIALPORT)
+asp.open_ser()
+asp.flash('blink.hex')
