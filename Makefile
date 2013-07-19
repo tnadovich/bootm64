@@ -7,7 +7,7 @@ M64_BOOTSTART = 0xF800
 
 # Fuse settings
 M328P_FUSE = -U hfuse:w:0xD8:m -U lfuse:w:0xEF:m
-M64_FUSE = -U hfuse:w:9C:m -U lfuse:w:0xC1:m
+M64_FUSE = -U hfuse:w:0x9C:m -U lfuse:w:0xC1:m
 ARDUINO_FUSE = -U hfuse:w:DE:m -U lfuse:w:0xFF:m -U efuse:w:05:m
 
 LFLAGS = -Wl,--section-start=.text=$(M64_BOOTSTART)
@@ -15,7 +15,7 @@ PROJECT	= boot
 DUDEPORT = -c avrisp2 -P usb
 
 AVRDUDE	= sudo avrdude $(DUDEPORT) -p $(MCU) -y -u
-OBJS	= main.o uart.o
+OBJS	= main.o uart.o boot.o convert.o
 
 all: $(PROJECT).hex
 
