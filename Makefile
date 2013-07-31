@@ -34,14 +34,15 @@ $(PROJECT).elf: $(OBJS)
 flash: $(PROJECT).hex
 	$(AVRDUDE) -U flash:w:$<:i
 
+blink: new_blink.hex
+	$(AVRDUDE) -U flash:w:$<:i
+
 fuse: 
 	$(AVRDUDE) $(M64_FUSE)
 
 %.lst: %.elf
 	avr-objdump -h -S $< > $@
 	avr-size --common -d $<
-
-
 
 wipe:
 	$(AVRDUDE) -e

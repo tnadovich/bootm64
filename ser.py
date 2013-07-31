@@ -43,11 +43,17 @@ def flash(prog_file):
 	hexdata = f.readlines()
 	f.close()
 
+	c = 0
 	if(ser.isOpen()):
 		print "Programming"
 		for i in range(0,len(hexdata)):
-			for j in range(0,len(hexdata[i])):
-				ser.write(hexdata[i][j])
+			c += hexstr2int(hexdata[i][1:3])
+			if (c >= 256):
+				c = 0
+				print "Writing flash"
+
+			ser.write(hexdata[i])
+
 		print "Done"
 	else:
 		print "Serial Port is not open"
@@ -59,4 +65,4 @@ def close_ser():
 		print "Serial Port is not open"
 
 open_ser()
-flash('blink.hex')
+flash(FILE)

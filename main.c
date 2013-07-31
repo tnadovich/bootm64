@@ -20,7 +20,9 @@ int main(void) {
 
 		i = 0;
 		while((i<(SPM_PAGESIZE)) && !done) {
+			usart_putchar(XON);
 			done = usart_gethexline(buffer,i);
+			usart_putchar(XOFF);
 			i += 16;
 		}
 
