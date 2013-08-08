@@ -13,6 +13,7 @@ void usart_init(void) {
 #else
 	UCSR0A &= ~(1 << U2X);
 #endif
+	usart_putstr("\n\r");
 }
 
 void usart_putchar(char c) {
@@ -30,10 +31,25 @@ void usart_putchar(char c) {
 
 char usart_getchar(void)
 {
+	uint32_t time = 0;
 	// Wait for buffer to be full
 	while(!(UCSR0A & (1<<RXC0)));
 	// Return character
 	return UDR0;
+}
+
+char usart_getchar_echo(void)
+{
+	// Wait for buffer to be full
+	while(!(UCSR0A & (1<<RXC0)));
+	// Get character
+	char c = UDR0;
+	// Echo character
+	usart_putchar(XOFF);
+	usart_putchar(c);
+	usart_putchar(XON);
+	// Return character
+	return c;
 }
 
 void usart_putstr(char* s) {
@@ -55,44 +71,51 @@ void usart_getstr(char* str,int size) {
 	}
 }
 
-uint8_t usart_gethexline(char* buffer, int16_t bufPtr) {
-	// If the first charachter isn't a ':' then 
+//Sends a number over USART
+void usart_putint(uint16_t sn)
+{
+	char cnum[16];
+	itoa(sn,cnum,10);
+	usart_putstr(cnum);
+}
+
+void usart_gethexline(char* buffer, int16_t bufPtr) {
+	// If the first character isn't a ':' then we're done
 	if(usart_getchar() != ':') {
-		usart_putchar('!');
-		return -1;
+		return;
 	
 	} else {
 		// Set up the various chunks of data that we're getting from the line
 		char hexSize[2];
 		char byteAddr[4];
 		char recordType[2];
+		char data[32];
 		char checksum[2];
-		char aaa[2];
+		char nlcr[2];
 
 		// Get the data size, byte address, and record type
 		usart_getstr(hexSize,2);
-		uint8_t size = hexstr2int(hexSize[0],hexSize[1]);
 		usart_getstr(byteAddr,4);
 		usart_getstr(recordType,2);
+
 		// if the record type is 1 then this is the end of the file
-		if (recordType[1] == '1') {
-			usart_getstr(aaa,2);
-			return 1;
+		if ((recordType[0] == '0') && (recordType[1] == '1')) {
+			void (*start)(void);
+			start = 0x0000;
+			(*start)();
 		}
-		// Set up the data buffer to the size specified by the earlier data
-		char* data = malloc(2 * size * sizeof(char));
+
 		// Get the data and the checksum
-		usart_getstr(data,size*2);
+		usart_getstr(data,32);
 		usart_getstr(checksum,2);
 
-		usart_getstr(aaa,2);
+		// Get the newline and carriage return
+		usart_getstr(nlcr,2);
 
 		// write the data from the line into the page buffer
 		uint8_t i = 0;
-		while(i<size)
+		while(i<16)
 			buffer[bufPtr + i++] = (char) hexstr2int(data[2*i],data[(2*i)+1]);
-
-		return 0;
 	}
 }
 		

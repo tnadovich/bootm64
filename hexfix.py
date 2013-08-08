@@ -10,7 +10,7 @@ import string, math, os
 
 PAGESIZE = 0x100
 LINELENGTH = 0x10
-FILE = 'mread.hex'
+FILE = 'read.hex'
 raw_hex_data = []
 last_line_address = 0
 

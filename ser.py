@@ -7,7 +7,7 @@ PAGESIZE = 256
 MEMSIZE = 0xF800
 BAUD = 9600
 SERIALPORT = '/dev/ttyUSB0'
-FILE = 'blink.hex'
+FILE = 'new_blink.hex'
 ser = serial.Serial(SERIALPORT)
 program = None
 
@@ -47,12 +47,9 @@ def flash(prog_file):
 	if(ser.isOpen()):
 		print "Programming"
 		for i in range(0,len(hexdata)):
-			c += hexstr2int(hexdata[i][1:3])
-			if (c >= 256):
-				c = 0
-				print "Writing flash"
-
+			time.sleep(0.5);
 			ser.write(hexdata[i])
+			print hexdata[i]
 
 		print "Done"
 	else:
