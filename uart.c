@@ -45,9 +45,7 @@ char usart_getchar_echo(void)
 	// Get character
 	char c = UDR0;
 	// Echo character
-	usart_putchar(XOFF);
 	usart_putchar(c);
-	usart_putchar(XON);
 	// Return character
 	return c;
 }
@@ -85,7 +83,8 @@ uint8_t usart_gethexline(char* buffer, int16_t bufPtr) {
 		return;
 	
 	} else {
-		// Set up the various chunks of data that we're getting from the line
+		// Set up the various chunks of data that we're getting
+		// from the line
 		char hexSize[2];
 		char byteAddr[4];
 		char recordType[2];
@@ -98,7 +97,8 @@ uint8_t usart_gethexline(char* buffer, int16_t bufPtr) {
 		usart_getstr(byteAddr,4);
 		usart_getstr(recordType,2);
 
-		// if the record type is 1 then this is the end of the file
+		// if the record type is 1 then this is the end of the
+		// file
 		if ((recordType[0] == '0') && (recordType[1] == '1')) {
 			return 1;
 		}

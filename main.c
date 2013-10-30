@@ -12,7 +12,6 @@ ISR (TIMER1_OVF_vect) {
 }
 
 void TC_init(void) {
-	// Disable global interrupts
 	cli();
 	// Enable overflow interrupts
 	TIMSK = (1 << TOIE1);
@@ -25,7 +24,6 @@ void TC_init(void) {
 	// Move interrupt vectors to boot flash
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
-	// Re-enable global interrupts
 	sei();
 }
 
