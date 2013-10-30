@@ -79,7 +79,7 @@ void usart_putint(uint16_t sn)
 	usart_putstr(cnum);
 }
 
-void usart_gethexline(char* buffer, int16_t bufPtr) {
+uint8_t usart_gethexline(char* buffer, int16_t bufPtr) {
 	// If the first character isn't a ':' then we're done
 	if(usart_getchar() != ':') {
 		return;
@@ -100,9 +100,7 @@ void usart_gethexline(char* buffer, int16_t bufPtr) {
 
 		// if the record type is 1 then this is the end of the file
 		if ((recordType[0] == '0') && (recordType[1] == '1')) {
-			void (*start)(void);
-			start = 0x0000;
-			(*start)();
+			return 1;
 		}
 
 		// Get the data and the checksum
@@ -117,5 +115,6 @@ void usart_gethexline(char* buffer, int16_t bufPtr) {
 		while(i<16)
 			buffer[bufPtr + i++] = (char) hexstr2int(data[2*i],data[(2*i)+1]);
 	}
+	return 0;
 }
 		

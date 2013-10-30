@@ -1,3 +1,6 @@
+#ifndef _uart_h_
+#define _uart_h_
+
 #include "defines.h"
 #include "convert.h"
 #include <util/setbaud.h>
@@ -26,4 +29,6 @@ void usart_getstr(char* str,int size);
 void usart_putint(uint16_t sn);
 
 // Receive a line from an Intel hex file
-void usart_gethexline(char* buffer, int16_t bufPtr);
+uint8_t usart_gethexline(char* buffer, int16_t bufPtr);
+
+#endif

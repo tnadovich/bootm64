@@ -1,3 +1,6 @@
+#ifndef _defines_h_
+#define _defines_h_
+
 // CPU Frequency
 #define F_CPU 1000000UL
 
@@ -16,3 +19,5 @@
 // Flow Control characters
 #define XON 17
 #define XOFF 19
+
+#endif
